@@ -17,96 +17,89 @@ namespace Werewolf
         static HarmonyPatches()
         {
             var harmony = new Harmony("rimworld.jecrell.werewolves");
-            //HarmonyInstance.DEBUG = true;
-            Log.Message("BodySize");
             harmony.Patch(AccessTools.Property(typeof(Pawn), nameof(Pawn.BodySize)).GetGetMethod(), null,
                 new HarmonyMethod(
                     typeof(HarmonyPatches),
                     nameof(WerewolfBodySize)), null);
-            Log.Message("HealthScale");
+
             harmony.Patch(AccessTools.Property(typeof(Pawn), nameof(Pawn.HealthScale)).GetGetMethod(), null,
                 new HarmonyMethod(
                     typeof(HarmonyPatches),
                     nameof(WerewolfHealthScale)), null);
 
-            //Log.Message("2");
-
-            Log.Message("PawnCanOpen");
             harmony.Patch(AccessTools.Method(typeof(Building_Door), nameof(Building_Door.PawnCanOpen)), null,
                 new HarmonyMethod(
                     typeof(HarmonyPatches),
                     nameof(WerewolfCantOpen)), null);
-            Log.Message("SoundHitPawn");
+
             harmony.Patch(AccessTools.Method(typeof(Verb_MeleeAttack), "SoundHitPawn"), new HarmonyMethod(
                 typeof(HarmonyPatches),
                 nameof(SoundHitPawnPrefix)), null);
-            Log.Message("SoundMiss");
+
             harmony.Patch(AccessTools.Method(typeof(Verb_MeleeAttack), "SoundMiss"), new HarmonyMethod(
                 typeof(HarmonyPatches),
                 nameof(SoundMiss_Prefix)), null);
-            // harmony.Patch(AccessTools.Method(typeof(FloatMenuMakerMap), "AddHumanlikeOrders"), null, new HarmonyMethod(typeof(HarmonyPatches),
-            //nameof(OrderForSilverTreatment)));
-            Log.Message("InitializeComps");
+
             harmony.Patch(AccessTools.Method(typeof(ThingWithComps), nameof(ThingWithComps.InitializeComps)), null,
                 new HarmonyMethod(
                     typeof(HarmonyPatches),
                     nameof(InitializeWWComps)));
-            Log.Message("CostToMoveIntoCell");
             harmony.Patch(
                 AccessTools.Method(typeof(Pawn_PathFollower), "CostToMoveIntoCell",
                     new[] { typeof(Pawn), typeof(IntVec3) }), null, new HarmonyMethod(
                     typeof(HarmonyPatches),
                     nameof(PathOfNature)), null);
-            Log.Message("UpdateAllDuties");
+
             harmony.Patch(AccessTools.Method(typeof(LordToil_AssaultColony), "UpdateAllDuties"), null,
                 new HarmonyMethod(typeof(HarmonyPatches),
                     nameof(UpdateAllDuties_PostFix)), null);
-            Log.Message("Kill");
+
             harmony.Patch(AccessTools.Method(typeof(Pawn), nameof(Pawn.Kill)), new HarmonyMethod(typeof(HarmonyPatches),
                 nameof(WerewolfKill)), null);
-            Log.Message("RecruitDifficulty");
+
             harmony.Patch(AccessTools.Method(typeof(PawnUtility), nameof(PawnUtility.RecruitDifficulty)),
                 new HarmonyMethod(
                     typeof(HarmonyPatches),
                     nameof(UnrecruitableSworn)), null);
-            Log.Message("Destroy");
+
             harmony.Patch(AccessTools.Method(typeof(Pawn), nameof(Pawn.Destroy)), new HarmonyMethod(
                 typeof(HarmonyPatches),
                 nameof(WerewolfDestroy)), null);
-            Log.Message("DebugSetTicksGame");
+
             harmony.Patch(AccessTools.Method(typeof(TickManager), nameof(TickManager.DebugSetTicksGame)), null,
                 new HarmonyMethod(
                     typeof(HarmonyPatches),
                     nameof(MoonTicksUpdate)), null);
-            Log.Message("DoListingItems_MapActions");
+
             harmony.Patch(AccessTools.Method(typeof(Dialog_DebugActionsMenu), "DoListingItems"), null,
                 new HarmonyMethod(typeof(HarmonyPatches),
                     nameof(DebugMoonActions)), null);
-            Log.Message("SetDead");
+
             harmony.Patch(AccessTools.Method(typeof(Pawn_HealthTracker), nameof(Pawn_HealthTracker.SetDead)),
                 new HarmonyMethod(
                     typeof(HarmonyPatches),
                     nameof(IgnoreDoubleDeath)), null);
-            Log.Message("DamageUntilDowned");
+
             harmony.Patch(AccessTools.Method(typeof(HealthUtility), nameof(HealthUtility.DamageUntilDowned)),
                 new HarmonyMethod(
                     typeof(HarmonyPatches),
                     nameof(DebugDownWerewolf)), null);
-            Log.Message("TryGiveJob");
+
             harmony.Patch(AccessTools.Method(typeof(JobGiver_OptimizeApparel), "TryGiveJob"), new HarmonyMethod(
                 typeof(HarmonyPatches),
                 nameof(DontOptimizeWerewolfApparel)), null);
-            Log.Message("AccessTools.all");
+
             harmony.Patch((typeof(DamageWorker_AddInjury).GetMethods(AccessTools.all)
                     .Where(mi => mi.GetParameters().Count() >= 4 &&
                                  mi.GetParameters().ElementAt(1).ParameterType == typeof(Hediff_Injury)).First()),
                 new HarmonyMethod(typeof(HarmonyPatches), nameof(WerewolfDmgFixFinalizeAndAddInjury)), null);
-            Log.Message("Notify_PawnGenerated");
+
             harmony.Patch(AccessTools.Method(typeof(Scenario), nameof(Scenario.Notify_PawnGenerated)), null,
                 new HarmonyMethod(typeof(HarmonyPatches), nameof(AddRecentWerewolves)));
 
+            harmony.Patch(original: AccessTools.Method(type: typeof(PawnGraphicSet), name: nameof(PawnGraphicSet.ResolveAllGraphics)),
+                prefix: new HarmonyMethod(methodType: typeof(HarmonyPatches), methodName: nameof(ResolveAllGraphicsWereWolf)));
 
-            Log.Message("RenderPawnInternal");
             harmony.Patch(
                 AccessTools.Method(typeof(PawnRenderer), "RenderPawnInternal",
                     new[]
@@ -115,14 +108,23 @@ namespace Werewolf
                         typeof(bool), typeof(bool), typeof(bool)
                     }),
                 new HarmonyMethod(typeof(HarmonyPatches), nameof(RenderPawnInternal)), null);
+        }
+
+        [HarmonyBefore(new string[] { "rimworld.erdelf.alien_race.main" })]
+        public static bool ResolveAllGraphicsWereWolf(PawnGraphicSet __instance)
+        {
+            if (Current.ProgramState != ProgramState.Playing) return true;
+            Pawn pawn = Traverse.Create(root: __instance).Field(name: "pawn").GetValue<Pawn>();
+            if (!pawn.Spawned) return true;
+            CompWerewolf compWerewolf = pawn?.GetComp<CompWerewolf>();
+            if (compWerewolf == null || !compWerewolf.IsTransformed) return true;
 
 
-            //            harmony.Patch(AccessTools.Method(typeof(PawnGraphicSet), "ResolveAllGraphics"), new HarmonyMethod(
-            //                typeof(HarmonyPatches),
-            //                nameof(RenderWerewolf)), null);
-            //
-            //            harmony.Patch(AccessTools.Method(typeof(PawnRenderer), "RenderPawnAt", new[] {typeof(Vector3)}),
-            //                new HarmonyMethod(typeof(HarmonyPatches), nameof(RenderPawnAt)), null);
+            compWerewolf.CurrentWerewolfForm.bodyGraphicData = compWerewolf.CurrentWerewolfForm.def.graphicData;
+            __instance.nakedGraphic = compWerewolf.CurrentWerewolfForm.bodyGraphicData.Graphic;
+            __instance.ResolveApparelGraphics();
+            PortraitsCache.SetDirty(pawn);
+            return false;
         }
 
         // PawnRenderer.RenderPawnInternal
