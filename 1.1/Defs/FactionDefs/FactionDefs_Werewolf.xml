@@ -97,6 +97,19 @@
         </options>
       </li>
       <li>
+        <!-- Normal, standard mix -->
+        <kindDef>Peaceful</kindDef>
+        <options>
+          <ROM_WerewolfNewBlood>15</ROM_WerewolfNewBlood>
+          <ROM_WolfHandler>20</ROM_WolfHandler>
+          <ROM_Werewolf>50</ROM_Werewolf>
+          <ROM_WerewolfFang>20</ROM_WerewolfFang>
+          <ROM_WerewolfAlpha>5</ROM_WerewolfAlpha>
+          <Tribal_Archer>80</Tribal_Archer>
+          <Tribal_Warrior>10</Tribal_Warrior>
+        </options>
+      </li>
+      <li>
         <!-- Base defense -->
         <kindDef>Settlement</kindDef>
         <options>
