@@ -10,6 +10,8 @@ namespace Werewolf
     [DefOf]
     public class WWDefOf
     {
+        public static GameConditionDef ROM_MoonCycle;
+
         //December 2017
         public static ConceptDef ROMWW_ConceptBionics;
 
