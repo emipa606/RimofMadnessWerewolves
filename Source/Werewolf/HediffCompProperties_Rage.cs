@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RimWorld;
-using Verse;
+﻿using Verse;
 
 namespace Werewolf
 {
@@ -13,7 +8,7 @@ namespace Werewolf
 
         public HediffCompProperties_Rage()
         {
-            this.compClass = typeof(HediffComp_Rage);
+            compClass = typeof(HediffComp_Rage);
         }
     }
 }

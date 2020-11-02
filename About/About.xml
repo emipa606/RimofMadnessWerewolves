@@ -26,52 +26,65 @@
     <li>brrainz.harmony</li>
     <li>jecrell.jecstools</li>
   </loadAfter>
-  <description>Update of Jecrells mod
+  <description>[img]https://i.imgur.com/WAEzk68.png[/img]
+Update of Jecrells mod
 https://steamcommunity.com/sharedfiles/filedetails/?id=1115882219
 
-[img]https://i.imgur.com/GYswkZ7.png[/img]
-
-Support-chat:
-https://invite.gg/mlie
-
-Non-steam version:
-https://github.com/emipa606/RimofMadnessWerewolves
-	
 - This is an unofficial port
 - This will be removed when/if Jecrell comes back
+- Fixed compatiblity with Humanoid Alien Framework, thanks erdelf!
 - Hopefully I have found all code-changes but please report any errors!
+
+[img]https://i.imgur.com/7Gzt3Rg.png[/img]
+
+[table]
+	[tr]
+		[td][url=https://invite.gg/Mlie][img]https://i.imgur.com/zdzzBrc.png[/img][/url][/td]
+		[td][url=https://github.com/emipa606/RimofMadnessWerewolves][img]https://i.imgur.com/kTkpTOE.png[/img][/url][/td]
+	[/tr]
+[/table]
 	
---- Original Description ---
-Gameplay mod for RimWorld. Adds Werewolves to your game.
+[img]https://i.imgur.com/NOW7jU1.png[/img]
+
+[h1]Gameplay mod for RimWorld. Adds Werewolves to your game.[/h1]
 
 Watch Barky's impressions video to see some of the mod in action.
 https://www.youtube.com/watch?v=ZH54IP3N47c
 
-Languages:
-English, Français (by Coyote2710), 한국어 (by totobrother)
+[h1]Languages:[/h1]
+English, Français (by Coyote2710), 한국어 (by [url=http://steamcommunity.com/profiles/76561198050557061]totobrother[/url])
 
-Features:
-4 unlockable playable werewolf forms (and a hidden fifth type)
-Adds moons to RimWorld with a custom moon cycle system.
-Adds a neutral AI faction of Werewolves to interact with, or engage hostilities with to your peril.
-Adds "silver treatment" system for colonies with machining tables to use against Werewolf damage immunity.
+[h1]Features:[/h1]
+[list]
+[*] 4 unlockable playable werewolf forms (and a hidden fifth type)
+[*] Adds moons to RimWorld with a custom moon cycle system.
+[*] Adds a neutral AI faction of Werewolves to interact with, or engage hostilities with to your peril.
+[*] Adds "silver treatment" system for colonies with machining tables to use against Werewolf damage immunity.
+[/list]
 
-Startup Guide:
-For a playable werewolf, you will need a colonist with the Werewolf (Unblooded) trait.
-When the first full moon rises, they will go into a Werewolf fury. After they calm down, the werewolf will be able to make controlled transformations in the future for that form.
-To unlock and level up forms, toggle the full moon fury icon to enable further random transformations during full moons.
+[h1]Startup Guide:[/h1]
+[list]
+[*] For a playable werewolf, you will need a colonist with the Werewolf (Unblooded) trait. 
+[*] When the first full moon rises, they will go into a Werewolf fury. After they calm down, the werewolf will be able to make controlled transformations in the future for that form.
+[*] To unlock and level up forms, toggle the full moon fury icon to enable further random transformations during full moons.
+[/list]
 
 
-Special thanks to all those that support me on Patreon:
+[h1]Special thanks to all those that support me on Patreon:[/h1]
 Ruhurin Meras, Blaze Reynolds, ShotgunFace, Fredric Sundberg, Dan Winn, Toss Antilles, Sarah Banks, Undead Jackel, Michin, Chelsea, Caine Detueur, Yewty Oxman, Jerod Clayton, Arty Kubin, Ashleigh Miller, infinity421, TheDayDude, Jacob Duga, Ryan Brock, Evan Hwang, Moshat, Christopher, Don Butterblume, John Boehr, George Chong Chuang Ming, Oliver White, Helpful Bot, vincent de keijzer, roxxploxx, Legless, Christopher Abel, Karol Rybak, Mathias Broxvall, Mark, Tim Stillson, Lachlan Easton, Nemuri Hime, Sera, Christian Hermansen, NiNe Bottles of Rum, Populous25, Steven James, Marcus Siraenu, Michael Lauder, meatface.
 
-Notes
+[h1]Notes[/h1]
 Artwork for this mod was contributed by SpoonShortage and Xen.
 Mod commissioned for Sarah Banks.
 
-Questions / Comments / Bug Reports
+[h1]Questions / Comments / Bug Reports[/h1]
 Head to our Discord server -&gt; https://discord.gg/AaVFA7V
 
-Known Conflicts
-Unknown.</description>
+[h1]Known Conflicts[/h1]
+Unknown.
+
+[h1]Psst...
+Still there fellow RimWorlder?
+Want to buy me a coffee? Perhaps more mods for RimWorld?
+Consider donating to my Patreon, here: https://www.patreon.com/jecrell[/h1]</description>
 </ModMetaData>

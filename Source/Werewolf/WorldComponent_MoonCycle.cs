@@ -25,13 +25,23 @@ namespace Werewolf
         public void AdvanceOneDay()
         {
             if (!moons.NullOrEmpty())
-                foreach (Moon moon in moons) moon.AdvanceOneDay();
+            {
+                foreach (Moon moon in moons)
+                {
+                    moon.AdvanceOneDay();
+                }
+            }
         }
 
         public void AdvanceOneQuadrum()
         {
             if (!moons.NullOrEmpty())
-                foreach (Moon moon in moons) moon.AdvanceOneQuadrum();
+            {
+                foreach (Moon moon in moons)
+                {
+                    moon.AdvanceOneQuadrum();
+                }
+            }
         }
 
         public void DebugTriggerNextFullMoon()
@@ -40,8 +50,11 @@ namespace Werewolf
             if (!moons.NullOrEmpty() && gcMoonCycle != null)
             {
                 soonestMoon = moons.MinBy(x => x.DaysUntilFull);
-                for (int i = 0; i < soonestMoon.DaysUntilFull; i++)
+                for (var i = 0; i < soonestMoon.DaysUntilFull; i++)
+                {
                     AdvanceOneDay();
+                }
+
                 soonestMoon.FullMoonIncident();
             }
         }
@@ -55,19 +68,34 @@ namespace Werewolf
 
         public void GenerateMoons(World world)
         {
-            if (moons == null) moons = new List<Moon>();
+            if (moons == null)
+            {
+                moons = new List<Moon>();
+            }
 
             //1-2% chance there are more than 3 moons.
-            int numMoons = 1;
-            float val = Rand.Value;
-            if (val > 0.98) numMoons = Rand.Range(4, 6);
-            else if (val > 0.7) numMoons = 3;
-            else if (val > 0.4) numMoons = 2;
-            for (int i = 0; i < numMoons; i++)
+            var numMoons = 1;
+            var val = Rand.Value;
+            if (val > 0.98)
             {
-                int uniqueID = 1;
+                numMoons = Rand.Range(4, 6);
+            }
+            else if (val > 0.7)
+            {
+                numMoons = 3;
+            }
+            else if (val > 0.4)
+            {
+                numMoons = 2;
+            }
+
+            for (var i = 0; i < numMoons; i++)
+            {
+                var uniqueID = 1;
                 if (moons.Any<Moon>())
+                {
                     uniqueID = moons.Max((Moon o) => o.UniqueID) + 1;
+                }
 
                 moons.Add(new Moon(uniqueID, world, Rand.Range(350000 * (i + 1), 600000 * (i + 1))));
             }
@@ -93,7 +121,10 @@ namespace Werewolf
             }
 
             if (recentWerewolves.Any())
+            {
                 recentWerewolves.RemoveAll(x => x.Key.Dead || x.Key.DestroyedOrNull());
+            }
+
             if (recentWerewolves.Any())
             {
                 var recentVampiresKeys = new List<Pawn>(recentWerewolves.Keys);
@@ -103,7 +134,11 @@ namespace Werewolf
                     if (recentWerewolves[key] > 100)
                     {
                         recentWerewolves.Remove(key);
-                        if (!key.Spawned || key.Faction == Faction.OfPlayerSilentFail) continue;
+                        if (!key.Spawned || key.Faction == Faction.OfPlayerSilentFail)
+                        {
+                            continue;
+                        }
+
                         Find.LetterStack.ReceiveLetter("ROM_WerewolfEncounterLabel".Translate(),
                                 "ROM_WerewolfEncounterDesc".Translate(key.LabelShort), LetterDefOf.ThreatSmall, key, null);
                     }
@@ -111,13 +146,7 @@ namespace Werewolf
             }
         }
 
-        public int DaysUntilFullMoon
-        {
-            get
-            {
-                return 0;
-            }
-        }
+        public int DaysUntilFullMoon => 0;
 
         public override void ExposeData()
         {

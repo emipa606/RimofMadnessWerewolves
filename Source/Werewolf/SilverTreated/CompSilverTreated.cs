@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RimWorld;
+﻿using RimWorld;
 using Verse;
 
 namespace Werewolf
@@ -13,20 +9,19 @@ namespace Werewolf
 
         public override string TransformLabel(string label)
         {
-            if (treated)
-            {
-                return label + "ROM_SilverAmmo".Translate();
-            }
-            return base.TransformLabel(label);
+            return treated ? (string)(label + "ROM_SilverAmmo".Translate()) : base.TransformLabel(label);
         }
 
         public override void PostExposeData()
         {
             base.PostExposeData();
-            Scribe_Values.Look(ref this.treated, "treated", false);
+            Scribe_Values.Look(ref treated, "treated", false);
             if (Scribe.mode == LoadSaveMode.LoadingVars)
             {
-                if (!treated && this?.parent?.Stuff == ThingDefOf.Silver) treated = true;
+                if (!treated && this?.parent?.Stuff == ThingDefOf.Silver)
+                {
+                    treated = true;
+                }
             }
         }
 

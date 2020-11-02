@@ -1,9 +1,7 @@
 ﻿using AbilityUser;
 using RimWorld;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using Verse;
 using Verse.AI;
@@ -119,7 +117,7 @@ namespace Werewolf
 
         public List<WerewolfForm> WerewolfForms
         {
-            set { werewolfForms = value; }
+            set => werewolfForms = value;
             get
             {
                 if (werewolfForms.NullOrEmpty() && IsWerewolf)
@@ -145,7 +143,9 @@ namespace Werewolf
                 {
                     isBlooded = false;
                     if (this?.Pawn?.story?.traits?.GetTrait(WWDefOf.ROM_Werewolf)?.Degree > 1)
+                    {
                         isBlooded = true;
+                    }
                 }
                 return isBlooded.Value;
             }
@@ -154,14 +154,11 @@ namespace Werewolf
 
         //Utilitarian Properties
         public bool IsSimpleSidearmsLoaded =>
-            (ModLister.AllInstalledMods.FirstOrDefault(x => x.Name == "Simple sidearms" && x.Active) != null);
+            ModLister.AllInstalledMods.FirstOrDefault(x => x.Name == "Simple sidearms" && x.Active) != null;
 
         public bool IsTransformed => CurrentWerewolfForm != null;
 
-        public bool IsWerewolf
-        {
-            get => WerewolfTrait != null;
-        }
+        public bool IsWerewolf => WerewolfTrait != null;
 
         public bool CanTransformNow => IsWerewolf && !IsTransformed && CooldownTicksLeft <= 0;
         public Vector3 Vec3 => Pawn.PositionHeld.ToVector3();
@@ -183,7 +180,11 @@ namespace Werewolf
             CurrentWerewolfForm = form;
             if (Pawn is Pawn p)
             {
-                if (p.Faction == Faction.OfPlayer) p.ClearMind();
+                if (p.Faction == Faction.OfPlayer)
+                {
+                    p.ClearMind();
+                }
+
                 if (form != null)
                 {
                     //Log.Message("ResolveTransformationEffects");
@@ -206,8 +207,16 @@ namespace Werewolf
         public override float CombatPoints()
         {
             //Log.Message("Combat points called");
-            if (forbiddenWolfhood) return 0;
-            if (WerewolfForms.NullOrEmpty()) return 400;
+            if (forbiddenWolfhood)
+            {
+                return 0;
+            }
+
+            if (WerewolfForms.NullOrEmpty())
+            {
+                return 400;
+            }
+
             var combatPoints = WerewolfForms.Max(x => x.level) * 400;
             //Log.Message("combatPoints: " + combatPoints);
             return combatPoints;
@@ -240,7 +249,9 @@ namespace Werewolf
             //Log.Message($"{Pawn.NameShortColored} Transforming back, killed: {killed}");
             isReverting = true;
             if (killed && currentWerewolfForm.def.transformSound is SoundDef howl)
+            {
                 howl.PlayOneShot(new TargetInfo(Pawn.PositionHeld, Pawn.MapHeld, false));
+            }
 
             //Clear the graphic cache.
             if (WerewolfForms.FirstOrDefault(x => x.bodyGraphicData != null) is WerewolfForm f)
@@ -252,7 +263,7 @@ namespace Werewolf
             if (!Pawn.Dead && Pawn?.health?.hediffSet is HediffSet health)
             {
                 //Log.Message($"{Pawn.NameShortColored} GetInjuredParts");
-                for (int i = 0; i < (health?.GetInjuredParts().Count() ?? 0); i++)
+                for (var i = 0; i < (health?.GetInjuredParts().Count() ?? 0); i++)
                 {
                     BodyPartRecord rec = health.GetInjuredParts().ElementAt(i);
                     List<Hediff_Injury> injuriesToHeal =
@@ -304,7 +315,7 @@ namespace Werewolf
                     //Check Metis chance and replace the werewolf trait.
                     Pawn.story.traits.allTraits.Remove(WerewolfTrait);
                     Trait newWerewolfTrait;
-                    float rand = Rand.Value;
+                    var rand = Rand.Value;
                     if (rand > metisChance)
                     {
                         newWerewolfTrait = new Trait(WWDefOf.ROM_Werewolf, (int)State.Werewolf);
@@ -328,7 +339,11 @@ namespace Werewolf
 
                 //Unblooded Werewolves do not become Metis.
                 case State.Unblooded:
-                    if (metisForm != null) WerewolfForms.Remove(metisForm);
+                    if (metisForm != null)
+                    {
+                        WerewolfForms.Remove(metisForm);
+                    }
+
                     formToTake = WerewolfForms.RandomElement();
 
                     //Replace trait.
@@ -342,7 +357,11 @@ namespace Werewolf
                 //Regular Werewolves and Pack Members do not become Metis.
                 case State.Werewolf:
                 case State.PackMember:
-                    if (metisForm != null) WerewolfForms.Remove(metisForm);
+                    if (metisForm != null)
+                    {
+                        WerewolfForms.Remove(metisForm);
+                    }
+
                     formToTake = WerewolfForms.RandomElement();
                     break;
             }
@@ -353,8 +372,15 @@ namespace Werewolf
         private void ResolveContainment()
         {
             IntVec3 spawnLoc = Pawn.PositionHeld;
-            if (spawnLoc == IntVec3.Invalid) spawnLoc = Pawn.Position;
-            if (spawnLoc == IntVec3.Invalid) _ = DropCellFinder.RandomDropSpot(Map);
+            if (spawnLoc == IntVec3.Invalid)
+            {
+                spawnLoc = Pawn.Position;
+            }
+
+            if (spawnLoc == IntVec3.Invalid)
+            {
+                _ = DropCellFinder.RandomDropSpot(Map);
+            }
 
             //Hops / Other storage buildings
             if (StoreUtility.StoringThing(Pawn) is Building building)
@@ -387,11 +413,11 @@ namespace Werewolf
                                                          select x).FirstOrDefault<Hediff_AddedPart>();
                     if (hediff_AddedPart != null)
                     {
-                        if (!this.WerewolfForms.Any(x => x.level >= 5) ||
+                        if (!WerewolfForms.Any(x => x.level >= 5) ||
                             PartCanBeWerewolfPart(hediff_AddedPart.Part) ||
                             hediff_AddedPart?.def?.addedPartProps?.partEfficiency < 1f)
                         {
-                            bool showMessage = true;
+                            var showMessage = true;
                             /// VAMPIRISM: Hide Lose Fangs Message ////////////////////////
                             try
                             {
@@ -413,14 +439,8 @@ namespace Werewolf
                             Pawn.health.RestorePart(rec);
                             if (Pawn.Faction == Faction.OfPlayer && showMessage)
                             {
-                                Messages.Message("ROM_WerewolfDecyberize".Translate(new object[]
-                                {
-                                    Pawn.LabelShort,
-                                    rec.def.label,
-                                    hediff_AddedPart.Label
-                                }), MessageTypeDefOf.NegativeEvent); //MessageTypeDefOf.NegativeEvent);
-
-                                LessonAutoActivator.TeachOpportunity(WWDefOf.ROMWW_ConceptBionics, this.Pawn,
+                                Messages.Message(TranslatorFormattedStringExtensions.Translate("ROM_WerewolfDecyberize", Pawn.LabelShort, rec.def.label, hediff_AddedPart.Label), MessageTypeDefOf.NegativeEvent); //MessageTypeDefOf.NegativeEvent);
+                                LessonAutoActivator.TeachOpportunity(WWDefOf.ROMWW_ConceptBionics, Pawn,
                                     OpportunityType.Critical);
                             }
                         }
@@ -429,13 +449,16 @@ namespace Werewolf
             }
         }
 
-        private bool AreFangs(Hediff_AddedPart addedPart) => addedPart is Vampire.Hediff_AddedPart_Fangs;
+        private bool AreFangs(Hediff_AddedPart addedPart)
+        {
+            return addedPart is Vampire.Hediff_AddedPart_Fangs;
+        }
 
 
         /// Restores all missing parts when transforming
         private void ResolveMissingParts(Pawn p)
         {
-            List<Hediff_MissingPart> missingParts = new List<Hediff_MissingPart>()
+            var missingParts = new List<Hediff_MissingPart>()
                 .Concat(p?.health?.hediffSet?.GetMissingPartsCommonAncestors()).ToList();
             if (!missingParts.NullOrEmpty())
             {
@@ -461,24 +484,35 @@ namespace Werewolf
         }
 
         public bool PartCanBeWerewolfPart(BodyPartRecord part)
-            => PartCanBeWerewolfJaw(part) || PartCanBeWerewolfClaw(part);
+        {
+            return PartCanBeWerewolfJaw(part) || PartCanBeWerewolfClaw(part);
+        }
 
         public bool PartCanBeWerewolfJaw(BodyPartRecord part)
-            => part.def == BodyPartDefOf.Jaw || part.def.tags.Contains(BodyPartTagDefOf.EatingSource);
+        {
+            return part.def == BodyPartDefOf.Jaw || part.def.tags.Contains(BodyPartTagDefOf.EatingSource);
+        }
 
         public bool PartCanBeWerewolfClaw(BodyPartRecord part)
-            => part.def == BodyPartDefOf.Hand;
+        {
+            return part.def == BodyPartDefOf.Hand;
+        }
 
 
         /// Adds the Werewolf jaws and claws to each respective body part.
         private void ResolveTransformedHediffs(Pawn p, WerewolfForm currentWerewolfForm)
         {
             IEnumerable<BodyPartRecord> recs = p.health.hediffSet.GetNotMissingParts();
-            Dictionary<BodyPartRecord, HediffDef> bodyPartRecords = new Dictionary<BodyPartRecord, HediffDef>();
+            var bodyPartRecords = new Dictionary<BodyPartRecord, HediffDef>();
             if (recs?.FirstOrDefault(PartCanBeWerewolfJaw) is BodyPartRecord jaw)
+            {
                 bodyPartRecords.Add(jaw, currentWerewolfForm.def.jawHediff);
+            }
+
             if (recs.FirstOrDefault(PartCanBeWerewolfClaw) is BodyPartRecord leftHand)
+            {
                 bodyPartRecords.Add(leftHand, currentWerewolfForm.def.clawHediff);
+            }
 
             if ((bodyPartRecords?.Count() ?? 0) > 0)
             {
@@ -499,7 +533,7 @@ namespace Werewolf
             //Give Werewolf fury during a full moon event IF
             //1) Werewolf is UNBLOODED
             //2) Fury mode is ENABLED
-            bool giveFuryMentalState = false;
+            var giveFuryMentalState = false;
             if (moonTransformation)
             {
                 if (!IsBlooded)
@@ -515,14 +549,20 @@ namespace Werewolf
             }
 
             if (giveFuryMentalState)
+            {
                 p.mindState.mentalStateHandler.TryStartMentalState(WWDefOf.ROM_WerewolfFury,
                     "ROM_MoonCycle_FullMoonArgless".Translate(), true);
+            }
         }
 
         /// Apply Werewolf stats and gives visual/audio feedback to players when transforming.
         private void ResolveTransformEffects(Pawn p, WerewolfForm currentWerewolfForm, bool moonTransformation = false)
         {
-            if (moonTransformation) ResolveContainment();
+            if (moonTransformation)
+            {
+                ResolveContainment();
+            }
+
             ResolveBionics();
             ResolveMissingParts(p);
             ResolveWerewolfStatMods(p, currentWerewolfForm);
@@ -542,7 +582,9 @@ namespace Werewolf
             p.Drawer.renderer.graphics.ResolveAllGraphics();
 
             if (currentWerewolfForm.def.transformSound is SoundDef howl)
+            {
                 howl.PlayOneShot(new TargetInfo(p.PositionHeld, p.MapHeld, false));
+            }
 
             Messages.Message("ROM_WerewolfTransformation".Translate(new object[]
             {
@@ -554,7 +596,7 @@ namespace Werewolf
         /// Clears up remaining hediffs
         private void ResolveClearHediffs()
         {
-            List<Hediff> hediffTemps = new List<Hediff>();
+            var hediffTemps = new List<Hediff>();
             var hediffs = Pawn?.health?.hediffSet?.hediffs;
             if (hediffs == null || (hediffs?.Count) <= 0)
             {
@@ -580,7 +622,9 @@ namespace Werewolf
                 {
                     if (LoadedModManager.RunningMods?.FirstOrDefault(x =>
                             x.Name.Contains("Rim of Madness - Vampires")) != null)
+                    {
                         ReAddVampireFangs();
+                    }
                 }
                 catch (System.TypeLoadException)
                 {
@@ -607,7 +651,7 @@ namespace Werewolf
             if (Pawn?.equipment?.AllEquipmentListForReading is List<ThingWithComps> equipment &&
                 !equipment.NullOrEmpty())
             {
-                List<ThingWithComps> temp = new List<ThingWithComps>();
+                var temp = new List<ThingWithComps>();
                 temp.AddRange(equipment);
                 foreach (ThingWithComps c in temp)
                 {
@@ -615,7 +659,10 @@ namespace Werewolf
                     {
                         StoredWeapons.Add(d);
                         inventory.innerContainer.InnerListForReading.Add(d);
-                        if (d.Spawned) d.DeSpawn();
+                        if (d.Spawned)
+                        {
+                            d.DeSpawn();
+                        }
                     }
                 }
             }
@@ -627,7 +674,7 @@ namespace Werewolf
             //Take off upper body items.
             if (Pawn?.apparel?.WornApparel is List<Apparel> apparel && !apparel.NullOrEmpty())
             {
-                List<Apparel> temp = new List<Apparel>(apparel);
+                var temp = new List<Apparel>(apparel);
                 foreach (Apparel c in temp)
                 {
                     if (c?.def?.apparel?.bodyPartGroups is List<BodyPartGroupDef> groups &&
@@ -644,7 +691,10 @@ namespace Werewolf
                         {
                             upperBodyItems.Add(d);
                             Pawn.inventory.innerContainer.InnerListForReading.Add(d);
-                            if (d.Spawned) d.DeSpawn();
+                            if (d.Spawned)
+                            {
+                                d.DeSpawn();
+                            }
                         }
                     }
                 }
@@ -670,7 +720,7 @@ namespace Werewolf
                 {
                     if (Pawn.apparel.WornApparel is List<Apparel> apps && !apps.NullOrEmpty())
                     {
-                        List<Apparel> temp = new List<Apparel>(apps);
+                        var temp = new List<Apparel>(apps);
                         foreach (Apparel app in temp)
                         {
                             Pawn.apparel.TryDrop(app, out _, Pawn.PositionHeld);
@@ -678,7 +728,7 @@ namespace Werewolf
                     }
                     if (Pawn.equipment.AllEquipmentListForReading is List<ThingWithComps> weps && !weps.NullOrEmpty())
                     {
-                        List<ThingWithComps> temp = new List<ThingWithComps>(weps);
+                        var temp = new List<ThingWithComps>(weps);
                         foreach (ThingWithComps wep in temp)
                         {
                             Pawn.equipment.TryDropEquipment(wep, out _, Pawn.PositionHeld);
@@ -731,7 +781,7 @@ namespace Werewolf
                 {
                     if (p?.apparel is Pawn_ApparelTracker apparelTracker)
                     {
-                        HashSet<Apparel> tempItems = new HashSet<Apparel>(UpperBodyItems);
+                        var tempItems = new HashSet<Apparel>(UpperBodyItems);
                         foreach (Apparel a in tempItems)
                         {
                             if (invTracker.innerContainer.InnerListForReading.Contains(a) &&
@@ -772,7 +822,9 @@ namespace Werewolf
         {
             if (Find.TickManager.TicksGame % 250 == 0 && Pawn.Faction != Faction.OfPlayer &&
                 Pawn.mindState.enemyTarget != null && CanTransformNow)
+            {
                 TransformInto(HighestLevelForm, false);
+            }
         }
 
         /// Give AI Werewolves levels in different forms.
@@ -786,7 +838,7 @@ namespace Werewolf
 
                 if (!Pawn.story.traits.HasTrait(WWDefOf.ROM_Werewolf))
                 {
-                    Trait newTrait = new Trait(WWDefOf.ROM_Werewolf, 2, true);
+                    var newTrait = new Trait(WWDefOf.ROM_Werewolf, 2, true);
                     if (Pawn.kindDef.defName == "ROM_WerewolfNewBlood")
                     {
                         newTrait = new Trait(WWDefOf.ROM_Werewolf, -1, true);
@@ -832,7 +884,9 @@ namespace Werewolf
 
                 //Manage the AI sensibly.
                 if (Pawn?.mindState?.duty?.def == DutyDefOf.AssaultColony && IsBlooded)
+                {
                     Pawn.mindState.duty = new PawnDuty(DefDatabase<DutyDef>.GetNamed("ROM_WerewolfAssault"));
+                }
             }
         }
 
@@ -848,7 +902,7 @@ namespace Werewolf
         /// Spawns companion wolves.
         public void SpawnWolves(int numToSpawn)
         {
-            for (int i = 0; i < numToSpawn; i++)
+            for (var i = 0; i < numToSpawn; i++)
             {
                 PawnKindDef wolfKind = (Pawn.MapHeld.Biome == BiomeDefOf.IceSheet ||
                                         Pawn.MapHeld.Biome == BiomeDefOf.SeaIce ||
@@ -885,11 +939,11 @@ namespace Werewolf
                 {
                     if (Find.Selector.NumSelected == 1)
                     {
-                        Command_Action command_Action = new Command_Action()
+                        var command_Action = new Command_Action()
                         {
                             action = delegate
                             {
-                                List<FloatMenuOption> list = new List<FloatMenuOption>();
+                                var list = new List<FloatMenuOption>();
                                 foreach (WerewolfForm current in WerewolfForms)
                                 {
                                     list.Add(new FloatMenuOption("Level up " + current.def.LabelCap,
@@ -913,7 +967,7 @@ namespace Werewolf
                     {
                         if (form.level > 0)
                         {
-                            Command_WerewolfButton wolfFormButton = new Command_WerewolfButton(this)
+                            var wolfFormButton = new Command_WerewolfButton(this)
                             {
                                 defaultLabel = form.def.label + " Lv." + form.level,
                                 defaultDesc = form.Desc,
@@ -940,7 +994,7 @@ namespace Werewolf
                     defaultLabel = "ROM_FullMoonFury".Translate(),
                     defaultDesc = "ROM_FullMoonFuryDesc".Translate(),
                     icon = ContentFinder<Texture2D>.Get("UI/Button/MoonFury", true),
-                    isActive = (() => furyToggled),
+                    isActive = () => furyToggled,
                     toggleAction = delegate { furyToggled = !furyToggled; }
                 };
             }
@@ -966,7 +1020,9 @@ namespace Werewolf
                 if (IsWerewolf)
                 {
                     if (CooldownTicksLeft > 0)
+                    {
                         CooldownTicksLeft--;
+                    }
 
                     ResolveAIHostileReaction();
 
@@ -983,7 +1039,10 @@ namespace Werewolf
             }
         }
 
-        public override bool TryTransformPawn() => IsWerewolf || Pawn?.Faction?.def?.defName == "ROM_WerewolfClan";
+        public override bool TryTransformPawn()
+        {
+            return IsWerewolf || Pawn?.Faction?.def?.defName == "ROM_WerewolfClan";
+        }
 
         public override void PostExposeData()
         {

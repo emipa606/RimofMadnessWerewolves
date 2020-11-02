@@ -3,7 +3,6 @@ using RimWorld;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using Verse;
 using Verse.AI;
@@ -89,9 +88,9 @@ namespace Werewolf
                 typeof(HarmonyPatches),
                 nameof(DontOptimizeWerewolfApparel)), null);
 
-            harmony.Patch((typeof(DamageWorker_AddInjury).GetMethods(AccessTools.all)
+            harmony.Patch(typeof(DamageWorker_AddInjury).GetMethods(AccessTools.all)
                     .Where(mi => mi.GetParameters().Count() >= 4 &&
-                                 mi.GetParameters().ElementAt(1).ParameterType == typeof(Hediff_Injury)).First()),
+                                 mi.GetParameters().ElementAt(1).ParameterType == typeof(Hediff_Injury)).First(),
                 new HarmonyMethod(typeof(HarmonyPatches), nameof(WerewolfDmgFixFinalizeAndAddInjury)), null);
 
             harmony.Patch(AccessTools.Method(typeof(Scenario), nameof(Scenario.Notify_PawnGenerated)), null,
@@ -113,12 +112,22 @@ namespace Werewolf
         [HarmonyBefore(new string[] { "rimworld.erdelf.alien_race.main" })]
         public static bool ResolveAllGraphicsWereWolf(PawnGraphicSet __instance)
         {
-            if (Current.ProgramState != ProgramState.Playing) return true;
-            Pawn pawn = Traverse.Create(root: __instance).Field(name: "pawn").GetValue<Pawn>();
-            if (!pawn.Spawned) return true;
-            CompWerewolf compWerewolf = pawn?.GetComp<CompWerewolf>();
-            if (compWerewolf == null || !compWerewolf.IsTransformed) return true;
+            if (Current.ProgramState != ProgramState.Playing)
+            {
+                return true;
+            }
 
+            Pawn pawn = Traverse.Create(root: __instance).Field(name: "pawn").GetValue<Pawn>();
+            if (!pawn.Spawned)
+            {
+                return true;
+            }
+
+            CompWerewolf compWerewolf = pawn?.GetComp<CompWerewolf>();
+            if (compWerewolf == null || !compWerewolf.IsTransformed)
+            {
+                return true;
+            }
 
             compWerewolf.CurrentWerewolfForm.bodyGraphicData = compWerewolf.CurrentWerewolfForm.def.graphicData;
             __instance.nakedGraphic = compWerewolf.CurrentWerewolfForm.bodyGraphicData.Graphic;
@@ -133,7 +142,7 @@ namespace Werewolf
         {
             Pawn value = Traverse.Create(__instance).Field("pawn").GetValue<Pawn>();
             CompWerewolf compWerewolf;
-            bool flag = (compWerewolf = (value?.GetComp<CompWerewolf>())) != null && compWerewolf.IsTransformed;
+            var flag = (compWerewolf = (value?.GetComp<CompWerewolf>())) != null && compWerewolf.IsTransformed;
             bool result;
             if (flag)
             {
@@ -146,7 +155,7 @@ namespace Werewolf
                 {
                     Vector3 vector = rootLoc;
                     vector.y += 0.0046875f;
-                    bool flag3 = bodyDrawType == RotDrawMode.Rotting && !value.RaceProps.Humanlike && __instance.graphics.dessicatedGraphic != null && !portrait;
+                    var flag3 = bodyDrawType == RotDrawMode.Rotting && !value.RaceProps.Humanlike && __instance.graphics.dessicatedGraphic != null && !portrait;
                     if (flag3)
                     {
                         __instance.graphics.dessicatedGraphic.Draw(vector, bodyFacing, value, 0f);
@@ -155,10 +164,10 @@ namespace Werewolf
                     {
                         Mesh mesh = __instance.graphics.nakedGraphic.MeshAt(bodyFacing);
                         List<Material> list = __instance.graphics.MatsBodyBaseAt(bodyFacing, bodyDrawType);
-                        for (int i = 0; i < list.Count; i++)
+                        for (var i = 0; i < list.Count; i++)
                         {
                             Material damagedMat = __instance.graphics.flasher.GetDamagedMat(list[i]);
-                            Vector3 vector2 = new Vector3(vector.x, vector.y, vector.z);
+                            var vector2 = new Vector3(vector.x, vector.y, vector.z);
                             if (portrait)
                             {
                                 vector2.x *= 1f + (1f - (portrait ? compWerewolf.CurrentWerewolfForm.def.CustomPortraitDrawSize : compWerewolf.CurrentWerewolfForm.bodyGraphicData.drawSize).x);
@@ -171,7 +180,7 @@ namespace Werewolf
                             GenDraw.DrawMeshNowOrLater(mesh, vector + vector2, Quaternion.identity, damagedMat, portrait);
                             vector.y += 0.0046875f;
                         }
-                        bool flag4 = bodyDrawType == 0;
+                        var flag4 = bodyDrawType == 0;
                         if (flag4)
                         {
                             Vector3 vector3 = rootLoc;
@@ -190,12 +199,7 @@ namespace Werewolf
         }
         private static RotDrawMode CurRotDrawMode(Pawn pawn)
         {
-            if (pawn.Dead && pawn.Corpse != null)
-            {
-                return pawn.Corpse.CurRotDrawMode;
-            }
-
-            return RotDrawMode.Fresh;
+            return pawn.Dead && pawn.Corpse != null ? pawn.Corpse.CurRotDrawMode : RotDrawMode.Fresh;
         }
 
         public static bool RenderPawnAt(PawnRenderer __instance, Vector3 drawLoc)
@@ -204,10 +208,10 @@ namespace Werewolf
             if (p?.GetComp<CompWerewolf>() is CompWerewolf compWerewolf && compWerewolf.IsTransformed)
             {
                 var loc = new Vector3(drawLoc.x, drawLoc.y, drawLoc.z);
-                Quaternion quaternion = Quaternion.AngleAxis(0f, Vector3.up);
+                var quaternion = Quaternion.AngleAxis(0f, Vector3.up);
                 Mesh mesh = compWerewolf.CurrentWerewolfForm.bodyGraphicData.GraphicColoredFor(p).MeshAt(p.Rotation);
                 List<Material> list = __instance.graphics.MatsBodyBaseAt(p.Rotation, CurRotDrawMode(p));
-                for (int i = 0; i < list.Count; i++)
+                for (var i = 0; i < list.Count; i++)
                 {
                     Material damagedMat = __instance.graphics.flasher.GetDamagedMat(list[i]);
                     GenDraw.DrawMeshNowOrLater(mesh, drawLoc, quaternion, damagedMat, false);
@@ -230,12 +234,7 @@ namespace Werewolf
         public static Color WerewolfColor(Pawn p, WerewolfForm w)
         {
             var hairColor = new Color(p.story.hairColor.r, p.story.hairColor.g, p.story.hairColor.b);
-            if (w.def != WWDefOf.ROM_Glabro)
-            {
-                return hairColor;
-            }
-
-            return Color.white;
+            return w.def != WWDefOf.ROM_Glabro ? hairColor : Color.white;
         }
 
         public static bool RenderWerewolf(PawnGraphicSet __instance)
@@ -274,9 +273,7 @@ namespace Werewolf
 
         public static bool ShouldModifyDamage(Pawn instigator)
         {
-            if (!instigator?.TryGetComp<CompWerewolf>()?.IsTransformed ?? false)
-                return true;
-            return false;
+            return !instigator?.TryGetComp<CompWerewolf>()?.IsTransformed ?? false;
         }
 
         //public class DamageWorker_AddInjury : DamageWorker
@@ -290,9 +287,9 @@ namespace Werewolf
                 {
                     if (a?.equipment?.Primary is ThingWithComps b && !b.IsSilverTreated())
                     {
-                        int math = (int)(dinfo.Amount) -
+                        var math = (int)dinfo.Amount -
                                    (int)(dinfo.Amount *
-                                          (ww.CurrentWerewolfForm.DmgImmunity)); //10% damage. Decimated damage.
+                                          ww.CurrentWerewolfForm.DmgImmunity); //10% damage. Decimated damage.
                         dinfo.SetAmount(math);
                         injury.Severity = math;
                         //Log.Message(dinfo.Amount.ToString());
@@ -316,11 +313,7 @@ namespace Werewolf
         // Verse.Pawn_HealthTracker
         public static bool IgnoreDoubleDeath(ref Pawn_HealthTracker __instance)
         {
-            if (__instance.Dead)
-            {
-                return false;
-            }
-            return true;
+            return !__instance.Dead;
         }
 
         // Verse.Pawn_HealthTracker
@@ -365,9 +358,7 @@ namespace Werewolf
                             pawn.Drawer.Notify_DebugAffected();
                             MoteMaker.ThrowText(pawn.DrawPos, pawn.Map, pawn.LabelShort + " is now a werewolf", -1f);
                         }
-                        else
-                            Messages.Message(pawn.LabelCap + " is already a werewolf.", MessageTypeDefOf.RejectInput);
-                    }
+                        else { Messages.Message(pawn.LabelCap + " is already a werewolf.", MessageTypeDefOf.RejectInput); } }
                 })
             });
 
@@ -386,9 +377,7 @@ namespace Werewolf
                             pawn.Drawer.Notify_DebugAffected();
                             MoteMaker.ThrowText(pawn.DrawPos, pawn.Map, pawn.LabelShort + " is now a werewolf", -1f);
                         }
-                        else
-                            Messages.Message(pawn.LabelCap + " is already a werewolf.", MessageTypeDefOf.RejectInput);
-                    }
+                        else { Messages.Message(pawn.LabelCap + " is already a werewolf.", MessageTypeDefOf.RejectInput); } }
                 })
             });
 
@@ -414,25 +403,20 @@ namespace Werewolf
                             MoteMaker.ThrowText(pawn.DrawPos, pawn.Map, pawn.LabelShort + " is no longer a werewolf",
                                 -1f);
                         }
-                        else
-                            Messages.Message(pawn.LabelCap + " is not a werewolf.", MessageTypeDefOf.RejectInput);
-                    }
+                        else { Messages.Message(pawn.LabelCap + " is not a werewolf.", MessageTypeDefOf.RejectInput); } }
                 })
             });
 
             AccessTools.Method(typeof(Dialog_DebugActionsMenu), "DebugAction").Invoke(__instance, new object[]
             {
                 "Regenerate Moons",
-                new Action(() =>
-                {
-                    Find.World.GetComponent<WorldComponent_MoonCycle>().DebugRegenerateMoons(Find.World);
-                })
+                new Action(() => Find.World.GetComponent<WorldComponent_MoonCycle>().DebugRegenerateMoons(Find.World))
             });
 
             AccessTools.Method(typeof(Dialog_DebugActionsMenu), "DebugAction").Invoke(__instance, new object[]
             {
                 "Next Full Moon",
-                new Action(() => { Find.World.GetComponent<WorldComponent_MoonCycle>().DebugTriggerNextFullMoon(); })
+                new Action(() => Find.World.GetComponent<WorldComponent_MoonCycle>().DebugTriggerNextFullMoon())
             });
         }
 
@@ -485,11 +469,13 @@ namespace Werewolf
         // RimWorld.LordToil_AssaultColony
         public static void UpdateAllDuties_PostFix(LordToil_AssaultColony __instance)
         {
-            for (int i = 0; i < __instance.lord.ownedPawns.Count; i++)
+            for (var i = 0; i < __instance.lord.ownedPawns.Count; i++)
             {
                 if (__instance.lord.ownedPawns[i] is Pawn p && p.GetComp<CompWerewolf>() is CompWerewolf w &&
                     w.IsWerewolf)
+                {
                     p.mindState.duty = new PawnDuty(DefDatabase<DutyDef>.GetNamed("ROM_WerewolfAssault"));
+                }
             }
         }
 
@@ -499,15 +485,7 @@ namespace Werewolf
             if (pawn?.GetComp<CompWerewolf>() is CompWerewolf compWerewolf &&
                 compWerewolf?.CurrentWerewolfForm?.def == WWDefOf.ROM_Lupus)
             {
-                int num;
-                if (c.x == pawn.Position.x || c.z == pawn.Position.z)
-                {
-                    num = pawn.TicksPerMoveCardinal;
-                }
-                else
-                {
-                    num = pawn.TicksPerMoveDiagonal;
-                }
+                var num = c.x == pawn.Position.x || c.z == pawn.Position.z ? pawn.TicksPerMoveCardinal : pawn.TicksPerMoveDiagonal;
 
                 //num += pawn.Map.pathGrid.CalculatedCostAt(c, false, pawn.Position);
                 Building edifice = c.GetEdifice(pawn.Map);
@@ -561,7 +539,7 @@ namespace Werewolf
             if (__instance.def.IsRangedWeapon)
             {
                 var comps = (List<ThingComp>)AccessTools.Field(typeof(ThingWithComps), "comps").GetValue(__instance);
-                ThingComp thingComp = (ThingComp)Activator.CreateInstance(typeof(CompSilverTreated));
+                var thingComp = (ThingComp)Activator.CreateInstance(typeof(CompSilverTreated));
                 thingComp.parent = __instance;
                 comps.Add(thingComp);
                 thingComp.Initialize(null);
@@ -571,12 +549,12 @@ namespace Werewolf
 
         public static void OrderForSilverTreatment(Vector3 clickPos, Pawn pawn, List<FloatMenuOption> opts)
         {
-            IntVec3 c = IntVec3.FromVector3(clickPos);
+            var c = IntVec3.FromVector3(clickPos);
             foreach (Thing current in c.GetThingList(pawn.Map))
             {
                 if (current is ThingWithComps target && pawn != null && pawn != target)
                 {
-                    if ((target?.def?.IsWeapon ?? false))
+                    if (target?.def?.IsWeapon ?? false)
                     {
                         if (pawn?.Map?.listerBuildings
                             ?.AllBuildingsColonistOfDef(DefDatabase<ThingDef>.GetNamed("TableMachining"))
@@ -625,7 +603,7 @@ namespace Werewolf
                             {
                                 void action()
                                 {
-                                    Job job = new Job(WWDefOf.ROM_ApplySilverTreatment, target,
+                                    var job = new Job(WWDefOf.ROM_ApplySilverTreatment, target,
                                         SilverTreatedUtility.FindSilver(pawn), machiningTable)
                                     {
                                         count = SilverTreatedUtility.AmountRequired(target)
@@ -652,7 +630,9 @@ namespace Werewolf
                 if (w.CurrentWerewolfForm.def.attackSound is SoundDef soundToPlay)
                 {
                     if (Rand.Value < 0.5f)
+                    {
                         soundToPlay.PlayOneShot(new TargetInfo(pawn));
+                    }
                 }
             }
         }
@@ -665,7 +645,9 @@ namespace Werewolf
                 if (w.CurrentWerewolfForm.def.attackSound is SoundDef soundToPlay)
                 {
                     if (Rand.Value < 0.5f)
+                    {
                         soundToPlay.PlayOneShot(new TargetInfo(pawn));
+                    }
                 }
             }
         }

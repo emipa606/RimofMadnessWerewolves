@@ -1,9 +1,6 @@
 ﻿using RimWorld;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 using Verse;
 using Verse.AI;
@@ -16,28 +13,16 @@ namespace Werewolf
 
         private float totalNeededWork;
 
-        protected Thing Target
-        {
-            get
-            {
-                return base.job.targetA.Thing;
-            }
-        }
+        protected Thing Target => job.targetA.Thing;
 
-        protected Building Building
-        {
-            get
-            {
-                return (Building)this.Target.GetInnerIfMinified();
-            }
-        }
+        protected Building Building => (Building)Target.GetInnerIfMinified();
 
         protected int TotalNeededWork
         {
             get
             {
                 Building building = Building;
-                int value = Mathf.RoundToInt(building.GetStatValue(StatDefOf.WorkToBuild, true));
+                var value = Mathf.RoundToInt(building.GetStatValue(StatDefOf.WorkToBuild, true));
                 return Mathf.Clamp(value, 20, 3000);
             }
         }
@@ -45,14 +30,14 @@ namespace Werewolf
         public override void ExposeData()
         {
             base.ExposeData();
-            Scribe_Values.Look<float>(ref this.workLeft, "workLeft", 0f, false);
-            Scribe_Values.Look<float>(ref this.totalNeededWork, "totalNeededWork", 0f, false);
+            Scribe_Values.Look<float>(ref workLeft, "workLeft", 0f, false);
+            Scribe_Values.Look<float>(ref totalNeededWork, "totalNeededWork", 0f, false);
         }
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            return this.pawn.Reserve(this.job.targetA, this.job, 1, -1, null) && this.pawn.Reserve(this.job.targetB, this.job, 1, -1, null) &&
-                this.pawn.Reserve(this.job.targetC, this.job, 1, -1, null);
+            return pawn.Reserve(job.targetA, job, 1, -1, null) && pawn.Reserve(job.targetB, job, 1, -1, null) &&
+                pawn.Reserve(job.targetC, job, 1, -1, null);
         }
 
         [DebuggerHidden]
@@ -62,14 +47,17 @@ namespace Werewolf
             TargetIndex silver = TargetIndex.B;
             TargetIndex machineTable = TargetIndex.C;
 
-            List<Thing> silverThings = new List<Thing>();
+            var silverThings = new List<Thing>();
 
             //Unforbid
             yield return new Toil
             {
                 initAction = delegate
                 {
-                    if (TargetA.Thing is Thing t && t.IsForbidden(Faction.OfPlayer)) t.SetForbidden(false);
+                    if (TargetA.Thing is Thing t && t.IsForbidden(Faction.OfPlayer))
+                    {
+                        t.SetForbidden(false);
+                    }
                 }
             };
             yield return Toils_Reserve.Reserve(weapon, 1, -1, null);

@@ -19,15 +19,19 @@ namespace Werewolf
         /// Determine how much silver is needed to give a silver treatment.
         public static int AmountRequired(Thing thingToApplyTo)
         {
-            float workToMake = thingToApplyTo.GetStatValue(StatDefOf.WorkToMake);
-            float massAmount = thingToApplyTo.GetStatValue(StatDefOf.Mass);
-            var math = (workToMake * massAmount) / 100;
+            var workToMake = thingToApplyTo.GetStatValue(StatDefOf.WorkToMake);
+            var massAmount = thingToApplyTo.GetStatValue(StatDefOf.Mass);
+            var math = workToMake * massAmount / 100;
             return (int)Mathf.Clamp(math, 100f, 1000f);
         }
 
         public static Thing FindSilver(Pawn pawn)
         {
-            Predicate<Thing> predicate = (Thing x) => !x.IsForbidden(pawn) && pawn.CanReserve(x, 1, -1, null, false) && x.def == ThingDefOf.Silver;
+            bool predicate(Thing x)
+            {
+                return !x.IsForbidden(pawn) && pawn.CanReserve(x, 1, -1, null, false) && x.def == ThingDefOf.Silver;
+            }
+
             return GenClosest.ClosestThingReachable(pawn.Position, pawn.Map, ThingRequest.ForDef(ThingDefOf.Silver), PathEndMode.ClosestTouch, TraverseParms.For(pawn, Danger.Deadly, TraverseMode.ByPawn, false), 9999f, predicate, null, 0, -1, false, RegionType.Set_Passable, false);
         }
 
@@ -42,7 +46,7 @@ namespace Werewolf
         {
             if (n?.GetComp<CompSilverTreated>() is CompSilverTreated silverTreatment)
             {
-                for (int i = 0; i < silverToUse.Count(); i++)
+                for (var i = 0; i < silverToUse.Count(); i++)
                 {
                     silverToUse[i].Destroy(DestroyMode.Vanish);
                 }

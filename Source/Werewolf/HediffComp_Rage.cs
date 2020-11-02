@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using RimWorld;
 using Verse;
 using UnityEngine;
@@ -12,13 +9,7 @@ namespace Werewolf
     {
         protected const int SeverityUpdateInterval = 200;
 
-        private HediffCompProperties_Rage Props
-        {
-            get
-            {
-                return (HediffCompProperties_Rage)this.props;
-            }
-        }
+        private HediffCompProperties_Rage Props => (HediffCompProperties_Rage)props;
 
         Effecter effecter = null;
         public override void CompPostTick(ref float severityAdjustment)
@@ -52,7 +43,7 @@ namespace Werewolf
                         MoteProgressBar mote = ((SubEffecter_ProgressBar)effecter.children[0]).mote;
                         if (mote != null)
                         {
-                            float result = 1f - (float)(this.BaseRageDuration() - this.RageRemaining) / (float)this.BaseRageDuration();
+                            var result = 1f - ((float)(BaseRageDuration() - RageRemaining) / (float)BaseRageDuration());
 
                             mote.progress = Mathf.Clamp01(result);
                             mote.offsetZ = -1.0f;
@@ -62,7 +53,7 @@ namespace Werewolf
 
                 if (RageRemaining < 0 || !Pawn.Spawned || (Pawn.GetComp<CompWerewolf>() is CompWerewolf ww && !ww.IsTransformed))
                 {
-                    this.effecter.Cleanup();
+                    effecter.Cleanup();
 
                     //Log.Message("Rage ended");
                     severityAdjustment = -999.99f;
@@ -73,8 +64,10 @@ namespace Werewolf
                     if (Pawn?.GetComp<CompWerewolf>() is CompWerewolf compWerewolf)
                     {
 
-                        if (compWerewolf.CurrentWerewolfForm != null) compWerewolf.TransformBack();
-
+                        if (compWerewolf.CurrentWerewolfForm != null)
+                        {
+                            compWerewolf.TransformBack();
+                        }
                     }
                     return;
                 }
@@ -89,14 +82,11 @@ namespace Werewolf
             {
                 if (rageRemaining == -999)
                 {
-                    rageRemaining = (int)this.BaseRageDuration();
+                    rageRemaining = (int)BaseRageDuration();
                 }
                 return rageRemaining;
             }
-            set
-            {
-                rageRemaining = value;
-            }
+            set => rageRemaining = value;
         }
 
         private float? baseRageDuration;
@@ -109,21 +99,21 @@ namespace Werewolf
                 if (Pawn?.GetComp<CompWerewolf>() is CompWerewolf compWerewolf && compWerewolf.CurrentWerewolfForm != null)
                 {
                     math = compWerewolf.CurrentWerewolfForm.def.rageFactorPerLevel * compWerewolf.CurrentWerewolfForm.level;
-                    math *= this.Props.baseRageSeconds;
+                    math *= Props.baseRageSeconds;
                     math = Mathf.Clamp(math, 0f, compWerewolf.CurrentWerewolfForm.def.rageFactorPerLevelMax);
                 }
-                baseRageDuration = this.Props.baseRageSeconds + math;
+                baseRageDuration = Props.baseRageSeconds + math;
             }
             return baseRageDuration.Value;
         }
 
         public override string CompDebugString()
         {
-            StringBuilder stringBuilder = new StringBuilder();
+            var stringBuilder = new StringBuilder();
             stringBuilder.Append(base.CompDebugString());
-            if (!base.Pawn.Dead)
+            if (!Pawn.Dead)
             {
-                stringBuilder.AppendLine(this.RageRemaining.ToString("F3") + " second(s) remaining");
+                stringBuilder.AppendLine(RageRemaining.ToString("F3") + " second(s) remaining");
             }
             return stringBuilder.ToString();
         }
@@ -131,7 +121,7 @@ namespace Werewolf
         public override void CompExposeData()
         {
             base.CompExposeData();
-            Scribe_Values.Look<int>(ref this.rageRemaining, "rageRemaining", 0);
+            Scribe_Values.Look<int>(ref rageRemaining, "rageRemaining", 0);
         }
     }
 }

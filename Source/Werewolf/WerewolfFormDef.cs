@@ -1,6 +1,4 @@
 ﻿using Verse;
-using RimWorld;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Werewolf
@@ -21,20 +19,14 @@ namespace Werewolf
         public SoundDef attackSound = null;
         public string iconTexPath = null;
 
-        public Texture2D Icon
-        {
-            get
-            {
-                return ContentFinder<Texture2D>.Get(iconTexPath, true);
-            }
-        }
+        public Texture2D Icon => ContentFinder<Texture2D>.Get(iconTexPath, true);
 
         // Verse.ThingDef
         public override void ResolveReferences()
         {
-            if (this.graphicData != null)
+            if (graphicData != null)
             {
-                this.graphicData.ResolveReferencesSpecial();
+                graphicData.ResolveReferencesSpecial();
             }
         }
 

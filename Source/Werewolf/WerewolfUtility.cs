@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Verse;
 
 namespace Werewolf
@@ -10,14 +8,12 @@ namespace Werewolf
     {
         public static CompWerewolf CompWW(this Pawn pawn)
         {
-            if (pawn?.GetComp<CompWerewolf>() is CompWerewolf w) return w;
-            return null;
+            return pawn?.GetComp<CompWerewolf>() is CompWerewolf w ? w : null;
         }
 
         public static bool IsWerewolf(this Pawn pawn)
         {
-            if (pawn.CompWW() is CompWerewolf ww && ww.IsWerewolf) return true;
-            return false;
+            return pawn.CompWW() is CompWerewolf ww && ww.IsWerewolf;
         }
 
         // RimWorld.MedicalRecipesUtility
@@ -32,18 +28,14 @@ namespace Werewolf
         // RimWorld.WerewolfUtility
         public static bool IsCleanAndDroppable(Pawn pawn, BodyPartRecord part)
         {
-            return !pawn.Dead && !pawn.RaceProps.Animal && part.def.spawnThingOnRemoved != null && WerewolfUtility.IsClean(pawn, part);
+            return !pawn.Dead && !pawn.RaceProps.Animal && part.def.spawnThingOnRemoved != null && IsClean(pawn, part);
         }
 
 
         // RimWorld.WerewolfUtility
         public static Thing SpawnNaturalPartIfClean(Pawn pawn, BodyPartRecord part, IntVec3 pos, Map map)
         {
-            if (WerewolfUtility.IsCleanAndDroppable(pawn, part))
-            {
-                return GenSpawn.Spawn(part.def.spawnThingOnRemoved, pos, map);
-            }
-            return null;
+            return IsCleanAndDroppable(pawn, part) ? GenSpawn.Spawn(part.def.spawnThingOnRemoved, pos, map) : null;
         }
 
 
@@ -64,9 +56,9 @@ namespace Werewolf
                     GenSpawn.Spawn(current.def.spawnThingOnRemoved, pos, map);
                 }
             }
-            for (int i = 0; i < part.parts.Count; i++)
+            for (var i = 0; i < part.parts.Count; i++)
             {
-                WerewolfUtility.SpawnThingsFromHediffs(pawn, part.parts[i], pos, map);
+                SpawnThingsFromHediffs(pawn, part.parts[i], pos, map);
             }
         }
 

@@ -1,8 +1,4 @@
 ﻿using RimWorld;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Verse;
 using Verse.AI;
 
@@ -10,15 +6,9 @@ namespace Werewolf
 {
     public class JobGiver_WerewolfHunt : ThinkNode_JobGiver
     {
-        private const float WaitChance = 0.75f;
+        private const int MinMeleeChaseTicks = 900;
 
-        private const int WaitTicks = 90;
-
-        private const int MinMeleeChaseTicks = 420;
-
-        private const int MaxMeleeChaseTicks = 900;
-
-        private const int WanderOutsideDoorRegions = 9;
+        private const int MaxMeleeChaseTicks = 1800;
 
         protected override Job TryGiveJob(Pawn pawn)
         {
@@ -26,16 +16,16 @@ namespace Werewolf
             {
                 return null;
             }
-            Pawn pawn2 = this.FindPawnTarget(pawn);
+            Pawn pawn2 = FindPawnTarget(pawn);
             if (pawn2 != null && pawn.CanReach(pawn2, PathEndMode.Touch, Danger.Deadly, false, TraverseMode.ByPawn))
             {
-                return this.MeleeAttackJob(pawn, pawn2);
+                return MeleeAttackJob(pawn, pawn2);
             }
 
-            Building building = this.FindTurretTarget(pawn);
+            Building building = FindTurretTarget(pawn);
             if (building != null)
             {
-                return this.MeleeAttackJob(pawn, building);
+                return MeleeAttackJob(pawn, building);
             }
             if (pawn2 != null)
             {
@@ -45,32 +35,22 @@ namespace Werewolf
                     {
                         return null;
                     }
-                    IntVec3 cellBeforeBlocker;
-                    Thing thing = pawnPath.FirstBlockingBuilding(out cellBeforeBlocker, pawn);
+                    Thing thing = pawnPath.FirstBlockingBuilding(out IntVec3 cellBeforeBlocker, pawn);
                     if (thing != null)
                     {
                         //Job job = DigUtility.PassBlockerJob(pawn, thing, cellBeforeBlocker, true);
                         //if (job != null)
                         //{
-                        return this.MeleeAttackJob(pawn, thing);
+                        return MeleeAttackJob(pawn, thing);
                         //}
                     }
                     IntVec3 loc = pawnPath.LastCellBeforeBlockerOrFinalCell(pawn.MapHeld);
                     IntVec3 randomCell = CellFinder.RandomRegionNear(loc.GetRegion(pawn.Map, RegionType.Set_Passable), 9, TraverseParms.For(pawn, Danger.Deadly, TraverseMode.ByPawn, false), null, null, RegionType.Set_Passable).RandomCell;
-                    if (randomCell == pawn.Position)
-                    {
-                        return new Job(JobDefOf.Wait, 30, false);
-                    }
-                    return new Job(JobDefOf.Goto, randomCell);
+                    return randomCell == pawn.Position ? new Job(JobDefOf.Wait, 30, false) : new Job(JobDefOf.Goto, randomCell);
                 }
             }
-            Building buildingDoor = this.FindDoorTarget(pawn);
-            if (buildingDoor != null)
-            {
-                return this.MeleeAttackJob(pawn, buildingDoor);
-            }
-
-            return null;
+            Building buildingDoor = FindDoorTarget(pawn);
+            return buildingDoor != null ? MeleeAttackJob(pawn, buildingDoor) : null;
         }
 
         private Job MeleeAttackJob(Pawn pawn, Thing target)
@@ -78,7 +58,7 @@ namespace Werewolf
             return new Job(JobDefOf.AttackMelee, target)
             {
                 maxNumMeleeAttacks = 1,
-                expiryInterval = Rand.Range(900, 1800),
+                expiryInterval = Rand.Range(MinMeleeChaseTicks, MaxMeleeChaseTicks),
                 attackDoorIfTargetLost = true,
                 killIncappedTarget = true
             };
@@ -86,18 +66,18 @@ namespace Werewolf
 
         private Pawn FindPawnTarget(Pawn pawn)
         {
-            return (Pawn)AttackTargetFinder.BestAttackTarget(pawn, TargetScanFlags.NeedReachable, (Thing x) => x is Pawn p && !p.Dead && x.def.race.intelligence >= Intelligence.ToolUser, 0f, 9999f, default(IntVec3), 3.40282347E+38f, true);
+            return (Pawn)AttackTargetFinder.BestAttackTarget(pawn, TargetScanFlags.NeedReachable, (Thing x) => x is Pawn p && !p.Dead && x.def.race.intelligence >= Intelligence.ToolUser, 0f, 9999f, default, 3.40282347E+38f, true);
         }
 
         private Building FindTurretTarget(Pawn pawn)
         {
-            return (Building)AttackTargetFinder.BestAttackTarget(pawn, TargetScanFlags.NeedLOSToPawns | TargetScanFlags.NeedLOSToNonPawns | TargetScanFlags.NeedReachable | TargetScanFlags.NeedThreat, (Thing t) => t is Building, 0f, 70f, default(IntVec3), 3.40282347E+38f, false);
+            return (Building)AttackTargetFinder.BestAttackTarget(pawn, TargetScanFlags.NeedLOSToPawns | TargetScanFlags.NeedLOSToNonPawns | TargetScanFlags.NeedReachable | TargetScanFlags.NeedThreat, (Thing t) => t is Building, 0f, 70f, default, 3.40282347E+38f, false);
         }
 
 
         private Building_Door FindDoorTarget(Pawn pawn)
         {
-            return (Building_Door)AttackTargetFinder.BestAttackTarget(pawn, TargetScanFlags.NeedReachable, (Thing t) => t is Building_Door, 0f, 70f, default(IntVec3), 3.40282347E+38f, false);
+            return (Building_Door)AttackTargetFinder.BestAttackTarget(pawn, TargetScanFlags.NeedReachable, (Thing t) => t is Building_Door, 0f, 70f, default, 3.40282347E+38f, false);
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 using UnityEngine;
 using Verse;
 
@@ -28,15 +26,15 @@ namespace Werewolf
 
         public void ResolveReferences()
         {
-            if (this.bodyGraphicData != null && this.bodyGraphicData.graphicClass == null)
+            if (bodyGraphicData != null && bodyGraphicData.graphicClass == null)
             {
-                this.bodyGraphicData.graphicClass = typeof(Graphic_Multi);
+                bodyGraphicData.graphicClass = typeof(Graphic_Multi);
             }
         }
 
         public void LevelUp()
         {
-            ++this.level;
+            ++level;
             formBodySize = null;
             formHealthScale = null;
             dmgImmunity = null;
@@ -46,8 +44,8 @@ namespace Werewolf
         {
             get
             {
-                StringBuilder s = new StringBuilder();
-                string tab = "\t";
+                var s = new StringBuilder();
+                var tab = "\t";
 
                 s.AppendLine("ROM_FormLevel".Translate(new object[] { def.LabelCap, level }));
                 s.AppendLine(def.description);
@@ -75,21 +73,18 @@ namespace Werewolf
         }
 
         private float? dmgImmunity;
-        public float DmgImmunityNext => Mathf.Clamp(((0.6f) + ((level + 1) * 0.05f)), 0.6f, 0.90f);
+        public float DmgImmunityNext => Mathf.Clamp(0.6f + ((level + 1) * 0.05f), 0.6f, 0.90f);
         public float DmgImmunity
         {
             get
             {
                 if (!dmgImmunity.HasValue)
                 {
-                    dmgImmunity = Mathf.Clamp(((0.6f) + (level * 0.05f)), 0.6f, 0.90f);
+                    dmgImmunity = Mathf.Clamp(0.6f + (level * 0.05f), 0.6f, 0.90f);
                 }
                 return dmgImmunity.Value;
             }
-            set
-            {
-                dmgImmunity = value;
-            }
+            set => dmgImmunity = value;
         }
 
 
@@ -101,15 +96,12 @@ namespace Werewolf
             {
                 if (!formBodySize.HasValue)
                 {
-                    float oSize = owner.def.race.baseBodySize;
+                    var oSize = owner.def.race.baseBodySize;
                     formBodySize = Mathf.Clamp((oSize * def.sizeFactor) + (level * 0.1f), oSize, oSize * (def.sizeFactor * 2));
                 }
                 return formBodySize.Value;
             }
-            set
-            {
-                formBodySize = value;
-            }
+            set => formBodySize = value;
         }
 
         private float? formHealthScale;
@@ -120,25 +112,22 @@ namespace Werewolf
             {
                 if (!formHealthScale.HasValue)
                 {
-                    float oScale = owner.def.race.baseHealthScale;
+                    var oScale = owner.def.race.baseHealthScale;
                     formHealthScale = Mathf.Clamp((oScale * def.healthFactor) + (level * 0.1f), oScale, oScale * (def.healthFactor * 2));
                 }
                 return formHealthScale.Value;
             }
-            set
-            {
-                formBodySize = value;
-            }
+            set => formBodySize = value;
         }
 
         private int tempId = 0;
 
         public void ExposeData()
         {
-            Scribe_Values.Look<int>(ref this.tempId, "tempId", 0);
-            Scribe_References.Look<Pawn>(ref this.owner, "owner");
-            Scribe_Defs.Look<WerewolfFormDef>(ref this.def, "formDef");
-            Scribe_Values.Look<int>(ref this.level, "level", 0);
+            Scribe_Values.Look<int>(ref tempId, "tempId", 0);
+            Scribe_References.Look<Pawn>(ref owner, "owner");
+            Scribe_Defs.Look<WerewolfFormDef>(ref def, "formDef");
+            Scribe_Values.Look<int>(ref level, "level", 0);
             if (Scribe.mode == LoadSaveMode.LoadingVars)
             {
                 if (tempId == 0)

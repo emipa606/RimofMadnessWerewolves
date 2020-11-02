@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using Verse;
 
 namespace Werewolf
@@ -20,7 +19,7 @@ namespace Werewolf
 
         public override GizmoResult GizmoOnGUI(Vector2 topLeft, float maxWidth)
         {
-            Rect overRect = new Rect(topLeft.x, topLeft.y, 75f, 75f);
+            var overRect = new Rect(topLeft.x, topLeft.y, 75f, 75f);
             Find.WindowStack.ImmediateWindow(984688, overRect, WindowLayer.GameUI, delegate
             {
                 Rect rect = overRect.AtZero().ContractedBy(6f);
@@ -30,11 +29,11 @@ namespace Werewolf
                 Widgets.Label(rect2, "ROM_RageLeft".Translate());
                 Rect rect3 = rect;
                 rect3.yMin = overRect.height / 2f;
-                float fillPercent = rage.RageRemaining / Mathf.Max(1f, rage.BaseRageDuration());
-                Widgets.FillableBar(rect3, fillPercent, Gizmo_HediffRageStatus.FullRageBarTex, Gizmo_HediffRageStatus.EmptyRageBarTex, false);
+                var fillPercent = rage.RageRemaining / Mathf.Max(1f, rage.BaseRageDuration());
+                Widgets.FillableBar(rect3, fillPercent, FullRageBarTex, EmptyRageBarTex, false);
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.MiddleCenter;
-                Widgets.Label(rect3, (rage.RageRemaining).ToString("F0") + " / " + (rage.BaseRageDuration()).ToString("F0"));
+                Widgets.Label(rect3, rage.RageRemaining.ToString("F0") + " / " + rage.BaseRageDuration().ToString("F0"));
                 Text.Anchor = TextAnchor.UpperLeft;
             }, true, false, 1f);
             return new GizmoResult(GizmoState.Clear);

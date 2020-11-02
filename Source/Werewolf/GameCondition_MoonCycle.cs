@@ -1,8 +1,6 @@
 ﻿using RimWorld;
 using Verse;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Werewolf
@@ -26,13 +24,20 @@ namespace Werewolf
         {
             get
             {
-                int result = -1;
-                if (this.WCMoonCycle.moons is List<Moon> moons && !moons.NullOrEmpty())
+                var result = -1;
+                if (WCMoonCycle.moons is List<Moon> moons && !moons.NullOrEmpty())
                 {
-                    for (int i = 0; i < moons.Count; i++)
+                    for (var i = 0; i < moons.Count; i++)
                     {
-                        if (result == -1) result = moons[i].DaysUntilFull;
-                        if (moons[i].DaysUntilFull < result) result = moons[i].DaysUntilFull;
+                        if (result == -1)
+                        {
+                            result = moons[i].DaysUntilFull;
+                        }
+
+                        if (moons[i].DaysUntilFull < result)
+                        {
+                            result = moons[i].DaysUntilFull;
+                        }
                     }
                 }
                 return result;
@@ -43,22 +48,16 @@ namespace Werewolf
         {
            get
            {
-                string result;
-                if (SoonestFullMoonInDays > 0)
-                {
-                    result = "ROM_MoonCycle_UntilNextFullMoon".Translate(SoonestFullMoonInDays);
-                }
-                else
-                {
-                    result = "ROM_MoonCycle_FullMoonImminentArgless".Translate();
-                }
+                var result = SoonestFullMoonInDays > 0
+                    ? (string)"ROM_MoonCycle_UntilNextFullMoon".Translate(SoonestFullMoonInDays)
+                    : (string)"ROM_MoonCycle_FullMoonImminentArgless".Translate();
                 return result;
             }
         }
 
         public override void End()
         {
-            this.gameConditionManager.ActiveConditions.Remove(this);
+            gameConditionManager.ActiveConditions.Remove(this);
         }
 
         public override string TooltipString
@@ -66,7 +65,7 @@ namespace Werewolf
             get
             {
                 string result = "ROM_MoonCycle_CurrentPhaseDesc".Translate(WCMoonCycle.world.info.name);
-                StringBuilder s = new StringBuilder();
+                var s = new StringBuilder();
                 s.AppendLine(result);
                 s.AppendLine();
                 if (WCMoonCycle.moons is List<Moon> MoonList && !MoonList.NullOrEmpty())
@@ -76,9 +75,15 @@ namespace Werewolf
 
                     foreach (Moon m in MoonList)
                     {
-                        int daysLeft = m.DaysUntilFull;
-                        if (daysLeft > 0) s.AppendLine("  " + "ROM_MoonCycle_CurrentPhase".Translate(new object[] { m.Name, m.DaysUntilFull }));
-                        else s.AppendLine("  " + "ROM_MoonCycle_FullMoonImminent".Translate(m.Name));
+                        var daysLeft = m.DaysUntilFull;
+                        if (daysLeft > 0)
+                        {
+                            s.AppendLine("  " + "ROM_MoonCycle_CurrentPhase".Translate(new object[] { m.Name, m.DaysUntilFull }));
+                        }
+                        else
+                        {
+                            s.AppendLine("  " + "ROM_MoonCycle_FullMoonImminent".Translate(m.Name));
+                        }
                     }
                 }
                 return s.ToString().TrimEndNewlines();

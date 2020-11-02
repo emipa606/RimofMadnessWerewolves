@@ -1,9 +1,6 @@
 ﻿using RimWorld;
 using RimWorld.Planet;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Verse;
 
 namespace Werewolf
@@ -14,17 +11,17 @@ namespace Werewolf
         private int ticksInCycle = -1;
         private int ticksLeftInCycle = -1;
         private string name = "";
-        private World hostPlanet = null;
+        private readonly World hostPlanet = null;
 
         public int UniqueID => uniqueID;
-        public int DaysUntilFull => (int)((float)ticksLeftInCycle.TicksToDays());
+        public int DaysUntilFull => (int)(float)ticksLeftInCycle.TicksToDays();
         public string Name => name;
 
         public Moon() { }
         public Moon(int uniqueID, World world, int newTicks)
         {
             this.uniqueID = uniqueID;
-            name = NameGenerator.GenerateName(RulePackDefOf.NamerWorld, (x => x != (hostPlanet?.info?.name ?? "") && x.Count() < 9), false);
+            name = NameGenerator.GenerateName(RulePackDefOf.NamerWorld, x => x != (hostPlanet?.info?.name ?? "") && x.Count() < 9, false);
             hostPlanet = world;
             ticksInCycle = newTicks;
             ticksLeftInCycle = ticksInCycle;
@@ -47,12 +44,15 @@ namespace Werewolf
             {
                 if (Find.CurrentMap is Map m)
                 {
-                    int time = GenLocalDate.HourInteger(m);
+                    var time = GenLocalDate.HourInteger(m);
                     if (time <= 3 || time >= 21)
                     {
                         FullMoonIncident();
                     }
-                    else ticksLeftInCycle += GenDate.TicksPerHour;
+                    else
+                    {
+                        ticksLeftInCycle += GenDate.TicksPerHour;
+                    }
                 }
 
             }
@@ -62,9 +62,11 @@ namespace Werewolf
         public void FullMoonIncident()
         {
             ticksLeftInCycle = ticksInCycle;
-            GameCondition_FullMoon fullMoon = new GameCondition_FullMoon(this);
-            fullMoon.startTick = Find.TickManager.TicksGame;
-            fullMoon.Duration = GenDate.TicksPerDay;
+            var fullMoon = new GameCondition_FullMoon(this)
+            {
+                startTick = Find.TickManager.TicksGame,
+                Duration = GenDate.TicksPerDay
+            };
             Find.World.gameConditionManager.RegisterCondition(fullMoon);
             //Log.Message("Full Moon Incident");
 
@@ -72,15 +74,15 @@ namespace Werewolf
 
         public void ExposeData()
         {
-            Scribe_Values.Look<int>(ref this.uniqueID, "uniqueID", 0, false);
-            Scribe_Values.Look<string>(ref this.name, "name", "Moonbase Alpha");
-            Scribe_Values.Look<int>(ref this.ticksInCycle, "ticksInCycle", -1);
-            Scribe_Values.Look<int>(ref this.ticksLeftInCycle, "ticksLeftInCycle", -1);
+            Scribe_Values.Look<int>(ref uniqueID, "uniqueID", 0, false);
+            Scribe_Values.Look<string>(ref name, "name", "Moonbase Alpha");
+            Scribe_Values.Look<int>(ref ticksInCycle, "ticksInCycle", -1);
+            Scribe_Values.Look<int>(ref ticksLeftInCycle, "ticksLeftInCycle", -1);
         }
 
         public string GetUniqueLoadID()
         {
-            return "Moon_" + this.uniqueID;
+            return "Moon_" + uniqueID;
         }
     }
 }

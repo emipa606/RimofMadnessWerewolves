@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RimWorld;
+﻿using RimWorld;
 using Verse;
 using Verse.AI;
 
@@ -25,14 +21,14 @@ namespace Werewolf
                 target = pawn.mindState.enemyTarget,
                 verb = verb,
                 maxRangeFromTarget = verb.verbProps.range,
-                wantCoverFromTarget = (verb.verbProps.range > 5f)
+                wantCoverFromTarget = verb.verbProps.range > 5f
             }, out dest);
         }
 
 
         protected override Job TryGiveJob(Pawn pawn)
         {
-            this.UpdateEnemyTarget(pawn);
+            UpdateEnemyTarget(pawn);
             Thing enemyTarget = pawn.mindState.enemyTarget;
             if (enemyTarget == null)
             {
@@ -48,33 +44,35 @@ namespace Werewolf
 
             if (pawn.GetComp<CompWerewolf>() is CompWerewolf w && w.IsWerewolf)
             {
-                if (!w.IsTransformed && w.IsBlooded) w.TransformInto(w.HighestLevelForm, false);
+                if (!w.IsTransformed && w.IsBlooded)
+                {
+                    w.TransformInto(w.HighestLevelForm, false);
+                }
             }
 
             if (verb.verbProps.IsMeleeAttack)
             {
-                return this.MeleeAttackJob(enemyTarget);
+                return MeleeAttackJob(enemyTarget);
             }
-            bool flag = CoverUtility.CalculateOverallBlockChance(pawn.Position, enemyTarget.Position, pawn.Map) > 0.01f;
-            bool flag2 = pawn.Position.Standable(pawn.Map);
-            bool flag3 = verb.CanHitTarget(enemyTarget);
-            bool flag4 = (pawn.Position - enemyTarget.Position).LengthHorizontalSquared < 25;
+            var flag = CoverUtility.CalculateOverallBlockChance(pawn.Position, enemyTarget.Position, pawn.Map) > 0.01f;
+            var flag2 = pawn.Position.Standable(pawn.Map);
+            var flag3 = verb.CanHitTarget(enemyTarget);
+            var flag4 = (pawn.Position - enemyTarget.Position).LengthHorizontalSquared < 25;
             if ((flag && flag2 && flag3) || (flag4 && flag3))
             {
-                return new Job(JobDefOf.Wait_Combat, JobGiver_AIFightEnemy.ExpiryInterval_ShooterSucceeded.RandomInRange, true);
+                return new Job(JobDefOf.Wait_Combat, ExpiryInterval_ShooterSucceeded.RandomInRange, true);
             }
-            IntVec3 intVec;
-            if (!this.TryFindShootingPosition(pawn, out intVec))
+            if (!TryFindShootingPosition(pawn, out IntVec3 intVec))
             {
                 return null;
             }
             if (intVec == pawn.Position)
             {
-                return new Job(JobDefOf.Wait_Combat, JobGiver_AIFightEnemy.ExpiryInterval_ShooterSucceeded.RandomInRange, true);
+                return new Job(JobDefOf.Wait_Combat, ExpiryInterval_ShooterSucceeded.RandomInRange, true);
             }
-            Job newJob = new Job(JobDefOf.Goto, intVec)
+            var newJob = new Job(JobDefOf.Goto, intVec)
             {
-                expiryInterval = JobGiver_AIFightEnemy.ExpiryInterval_ShooterSucceeded.RandomInRange,
+                expiryInterval = ExpiryInterval_ShooterSucceeded.RandomInRange,
                 checkOverrideOnExpire = true
             };
             pawn.Map.pawnDestinationReservationManager.Reserve(pawn, newJob, intVec);

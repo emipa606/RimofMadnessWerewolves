@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using JecsTools;
 using Verse;
 using UnityEngine;
@@ -14,14 +13,14 @@ namespace Werewolf
     {
         public override IEnumerable<KeyValuePair<_Condition, Func<Vector3, Pawn, Thing, List<FloatMenuOption>>>> GetFloatMenus()
         {
-            List<KeyValuePair<_Condition, Func<Vector3, Pawn, Thing, List<FloatMenuOption>>>> floatMenus = new List<KeyValuePair<_Condition, Func<Vector3, Pawn, Thing, List<FloatMenuOption>>>>();
+            var floatMenus = new List<KeyValuePair<_Condition, Func<Vector3, Pawn, Thing, List<FloatMenuOption>>>>();
 
-            _Condition silverCondition = new _Condition(_ConditionType.IsType, typeof(ThingWithComps));
+            var silverCondition = new _Condition(_ConditionType.IsType, typeof(ThingWithComps));
             List<FloatMenuOption> silverFunc(Vector3 clickPos, Pawn pawn, Thing curThing)
             {
                 List<FloatMenuOption> opts = null;
-                ThingWithComps target = curThing as ThingWithComps;
-                if ((target?.def?.IsWeapon ?? false))
+                var target = curThing as ThingWithComps;
+                if (target?.def?.IsWeapon ?? false)
                 {
                     if (pawn?.Map?.listerBuildings?.AllBuildingsColonistOfDef(DefDatabase<ThingDef>.GetNamed("TableMachining"))?
                     .FirstOrDefault(x => x is Building_WorkTable) is Building_WorkTable machiningTable)
@@ -56,7 +55,7 @@ namespace Werewolf
                         {
                             void action()
                             {
-                                Job job = new Job(WWDefOf.ROM_ApplySilverTreatment, target, SilverTreatedUtility.FindSilver(pawn), machiningTable)
+                                var job = new Job(WWDefOf.ROM_ApplySilverTreatment, target, SilverTreatedUtility.FindSilver(pawn), machiningTable)
                                 {
                                     count = SilverTreatedUtility.AmountRequired(target)
                                 };
@@ -74,7 +73,7 @@ namespace Werewolf
                 return null;
 
             }
-            KeyValuePair<_Condition, Func<Vector3, Pawn, Thing, List<FloatMenuOption>>> curSec = new KeyValuePair<_Condition, Func<Vector3, Pawn, Thing, List<FloatMenuOption>>>(silverCondition, silverFunc);
+            var curSec = new KeyValuePair<_Condition, Func<Vector3, Pawn, Thing, List<FloatMenuOption>>>(silverCondition, silverFunc);
             floatMenus.Add(curSec);
             return floatMenus;
         }
