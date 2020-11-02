@@ -13,7 +13,7 @@ namespace Werewolf
         GameCondition gcMoonCycle = null;
         public int ticksUntilFullMoon = -1;
         public int ticksPerMoonCycle = -1;
-        
+
         public WorldComponent_MoonCycle(World world) : base(world)
         {
             if (moons.NullOrEmpty())
@@ -66,16 +66,16 @@ namespace Werewolf
             for (int i = 0; i < numMoons; i++)
             {
                 int uniqueID = 1;
-                if (this.moons.Any<Moon>())
-                    uniqueID = this.moons.Max((Moon o) => o.UniqueID) + 1;
+                if (moons.Any<Moon>())
+                    uniqueID = moons.Max((Moon o) => o.UniqueID) + 1;
 
                 moons.Add(new Moon(uniqueID, world, Rand.Range(350000 * (i + 1), 600000 * (i + 1))));
             }
         }
 
         public Dictionary<Pawn, int> recentWerewolves = new Dictionary<Pawn, int>();
-        
-        
+
+
         public override void WorldComponentTick()
         {
             base.WorldComponentTick();
@@ -88,12 +88,11 @@ namespace Werewolf
             }
             if (gcMoonCycle == null)
             {
-                gcMoonCycle = new GameCondition_MoonCycle();
-                gcMoonCycle.Permanent = true;
+                gcMoonCycle = GameConditionMaker.MakeConditionPermanent(WWDefOf.ROM_MoonCycle);
                 Find.World.gameConditionManager.RegisterCondition(gcMoonCycle);
             }
-            
-           if (recentWerewolves.Any())
+
+            if (recentWerewolves.Any())
                 recentWerewolves.RemoveAll(x => x.Key.Dead || x.Key.DestroyedOrNull());
             if (recentWerewolves.Any())
             {
@@ -111,7 +110,6 @@ namespace Werewolf
                 }
             }
         }
-        
 
         public int DaysUntilFullMoon
         {
@@ -124,9 +122,30 @@ namespace Werewolf
         public override void ExposeData()
         {
             base.ExposeData();
-            Scribe_Values.Look<int>(ref this.ticksUntilFullMoon, "ticksUntilFullMoon", -1, false);
-            Scribe_Deep.Look<GameCondition>(ref this.gcMoonCycle, "gcMoonCycle");
-            Scribe_Collections.Look<Moon>(ref this.moons, "moons", LookMode.Deep, new object[0]);
+            Scribe_Values.Look<int>(ref ticksUntilFullMoon, "ticksUntilFullMoon", -1, false);
+            Scribe_References.Look<GameCondition>(ref gcMoonCycle, "gcMoonCycle");
+            if (Scribe.mode == LoadSaveMode.ResolvingCrossRefs && gcMoonCycle == null)
+            {
+                gcMoonCycle = Find.World.GameConditionManager.GetActiveCondition<GameCondition_MoonCycle>();
+                Log.Warning($"{this}.gcMoonCycle wasn't a proper reference in save file, likely due to outdated ROM Werewolf; " +
+                    $"attempting to default to first active GameCondition_MoonCycle: {gcMoonCycle?.GetUniqueLoadID() ?? "null"}");
+                if (gcMoonCycle != null)
+                {
+                    if (gcMoonCycle.uniqueID == -1)
+                    {
+                        var uniqueID = Find.UniqueIDsManager.GetNextGameConditionID(); ;
+                        Log.Warning($"{this}.gcMoonCycle.uniqueID is unassigned (-1); setting it to {uniqueID}");
+                        gcMoonCycle.uniqueID = uniqueID;
+                    }
+                    if (gcMoonCycle.def != WWDefOf.ROM_MoonCycle)
+                    {
+                        Log.Warning($"{this}.gcMoonCycle.def is {gcMoonCycle.def.ToStringSafe()}; " +
+                            $"setting it to {WWDefOf.ROM_MoonCycle}");
+                        gcMoonCycle.def = WWDefOf.ROM_MoonCycle;
+                    }
+                }
+            }
+            Scribe_Collections.Look<Moon>(ref moons, "moons", LookMode.Deep, new object[0]);
         }
     }
 }

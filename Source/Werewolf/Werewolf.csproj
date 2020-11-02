@@ -69,7 +69,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="Vampire">
-      <HintPath>..\..\..\..\..\..\workshop\content\294100\1187010034\1.1\Assemblies\Vampire.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\workshop\content\294100\2242846132\1.2\Assemblies\Vampire.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
