@@ -38,5 +38,4 @@
   <ROM_MoonCycle_Moons>Moons of {0}</ROM_MoonCycle_Moons>
   <ROM_MoonCycle_CurrentPhaseDesc>Each moon on your colony's planet, {0}, has a moon cycle. At the end of the cycle, a beautiful full moon will be visible to your colony.\n\nAny werewolves with active transformations will be triggered at that time.</ROM_MoonCycle_CurrentPhaseDesc>
   <ROM_MoonCycle_CurrentPhase>{0} ({1} days until full)</ROM_MoonCycle_CurrentPhase>
-
 </LanguageData>

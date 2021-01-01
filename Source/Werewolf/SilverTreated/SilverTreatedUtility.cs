@@ -3,7 +3,6 @@ using RimWorld;
 using Verse;
 using UnityEngine;
 using System.Linq;
-using System;
 using Verse.AI;
 
 namespace Werewolf
@@ -12,7 +11,7 @@ namespace Werewolf
     {
         public static bool IsSilverTreated(this ThingWithComps thing)
         {
-            return (thing?.TryGetComp<CompSilverTreated>() is CompSilverTreated t && t.treated) || 
+            return (thing?.TryGetComp<CompSilverTreated>() is CompSilverTreated t && t.treated) ||
                 ((thing?.def?.IsMeleeWeapon ?? false) && (thing?.Stuff == ThingDefOf.Silver));
         }
 
@@ -22,7 +21,7 @@ namespace Werewolf
             var workToMake = thingToApplyTo.GetStatValue(StatDefOf.WorkToMake);
             var massAmount = thingToApplyTo.GetStatValue(StatDefOf.Mass);
             var math = workToMake * massAmount / 100;
-            return (int)Mathf.Clamp(math, 100f, 1000f);
+            return (int)Mathf.Clamp(math, 100f, 500f);
         }
 
         public static Thing FindSilver(Pawn pawn)
@@ -41,13 +40,17 @@ namespace Werewolf
             return (from t in map.listerThings.ThingsOfDef(ThingDefOf.Silver)
                     select t).Sum((Thing t) => t.stackCount) >= amount;
         }
-        
-        public static void ApplySilverTreatment(ThingWithComps n, List<Thing> silverToUse)
+
+        public static void ApplySilverTreatment(ThingWithComps thingWithComps, List<Thing> silverToUse)
         {
-            if (n?.GetComp<CompSilverTreated>() is CompSilverTreated silverTreatment)
+            if (thingWithComps?.GetComp<CompSilverTreated>() is CompSilverTreated silverTreatment)
             {
                 for (var i = 0; i < silverToUse.Count(); i++)
                 {
+                    if (silverToUse[i].DestroyedOrNull())
+                    {
+                        continue;
+                    }
                     silverToUse[i].Destroy(DestroyMode.Vanish);
                 }
                 silverTreatment.treated = true;

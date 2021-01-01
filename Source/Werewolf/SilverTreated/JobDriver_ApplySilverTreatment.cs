@@ -84,9 +84,9 @@ namespace Werewolf
                 }, defaultCompleteMode = ToilCompleteMode.Instant
             };
             yield return Toils_Haul.CheckForGetOpportunityDuplicate(reserveSilver, silver, TargetIndex.None, true, null);
-            yield return Toils_Goto.GotoThing(machineTable, PathEndMode.Touch);
+            yield return Toils_Goto.GotoThing(machineTable, PathEndMode.InteractionCell);
             yield return Toils_General.Wait(240).
-                FailOnDestroyedNullOrForbidden(weapon).FailOnCannotTouch(weapon, PathEndMode.Touch).
+                FailOnDestroyedNullOrForbidden(weapon).FailOnCannotTouch(weapon, PathEndMode.ClosestTouch).
                 FailOnDestroyedNullOrForbidden(machineTable).
                 FailOnDestroyedNullOrForbidden(silver).
                 WithProgressBarToilDelay(silver, false, -0.5f);
